@@ -1,6 +1,6 @@
-import { useEffect, useState } from 'react'
-import { BrowserRouter, Navigate, Outlet, Route, Routes } from 'react-router-dom'
+import { BrowserRouter, Route, Routes } from 'react-router-dom'
 import { AppLayout } from './layouts/AppLayout'
+import { ProtectedRoute } from './components/auth/ProtectedRoute.tsx'
 import { AboutPage } from './pages/AboutPage.tsx'
 import { DeletePostPage } from './pages/DeletePostPage.tsx'
 import { EditPostPage } from './pages/EditPostPage.tsx'
@@ -9,42 +9,6 @@ import { LoginPage } from './pages/LoginPage.tsx'
 import { NewPostPage } from './pages/NewPostPage.tsx'
 import { PostPage } from './pages/PostPage.tsx'
 import { RegisterPage } from './pages/RegisterPage.tsx'
-import { supabase } from './lib/supabase'
-
-function ProtectedRoute() {
-  const [isLoading, setIsLoading] = useState(true)
-  const [isAuthed, setIsAuthed] = useState(false)
-
-  useEffect(() => {
-    let isMounted = true
-
-    supabase.auth.getSession().then(({ data }) => {
-      if (!isMounted) return
-      setIsAuthed(Boolean(data.session))
-      setIsLoading(false)
-    })
-
-    const { data } = supabase.auth.onAuthStateChange((_event, session) => {
-      setIsAuthed(Boolean(session))
-      setIsLoading(false)
-    })
-
-    return () => {
-      isMounted = false
-      data.subscription.unsubscribe()
-    }
-  }, [])
-
-  if (isLoading) {
-    return <section className="text-slate-700">Checking authentication...</section>
-  }
-
-  if (!isAuthed) {
-    return <Navigate to="/login" replace />
-  }
-
-  return <Outlet />
-}
 
 function App() {
   return (
